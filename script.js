@@ -7,10 +7,11 @@ async function sendMessage() {
 
     try {
         let response = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: input })
-        });
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: input })
+});
+
 
         let data = await response.json();
         chatbox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
