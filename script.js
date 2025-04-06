@@ -6,7 +6,7 @@ async function sendMessage() {
     chatbox.innerHTML += `<p><b>You:</b> ${input}</p>`;
 
     try {
-        let response = await fetch("/chat", {
+        let response = await fetch("https://neurachat-ai-book-summary.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: input })
