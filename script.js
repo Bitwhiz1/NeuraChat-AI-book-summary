@@ -5,14 +5,18 @@ async function sendMessage() {
     let chatbox = document.getElementById("chatbox");
     chatbox.innerHTML += `<p><b>You:</b> ${input}</p>`;
 
-    let response = await fetch("http://localhost:3000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input })
-    });
+    try {
+        let response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: input })
+        });
 
-    let data = await response.json();
-    chatbox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+        let data = await response.json();
+        chatbox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+    } catch (error) {
+        chatbox.innerHTML += `<p><b>Bot:</b> Oops! Something went wrong.</p>`;
+    }
 
     document.getElementById("userInput").value = "";
     chatbox.scrollTop = chatbox.scrollHeight;
