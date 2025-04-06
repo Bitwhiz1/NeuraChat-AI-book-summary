@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuraChat - Book Summary Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#F7374F",
+                        secondary: "#88304E",
+                        dark: "#522546",
+                        deep: "#2C2C2C"
+                    },
+                    animation: {
+                        fadeIn: "fadeIn 0.5s ease-out",
+                        slideIn: "slideIn 0.5s ease-out"
+                    },
+                    keyframes: {
+                        fadeIn: { from: { opacity: 0 }, to: { opacity: 1 } },
+                        slideIn: { from: { transform: "translateY(20px)", opacity: 0 }, to: { transform: "translateY(0)", opacity: 1 } }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="h-screen bg-gradient-to-br from-dark via-secondary to-primary flex flex-col overflow-hidden">
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-deep text-white transform -translate-x-full transition-transform duration-300 z-50 shadow-lg p-6 space-y-6">
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-primary">About NeuraChat</h2>
+            <button onclick="toggleSidebar()" class="text-white text-2xl">&times;</button>
+        </div>
+        <div>
+            <p><span class="font-semibold">Created by:</span><br> Mohd Azfar Khan (12300942)</p>
+        </div>
+        <div>
+            <p><span class="font-semibold">About this bot:</span><br>NeuraChat is an AI-powered assistant that summarizes books using LLaMA 3.3 70B from Together AI. It supports PDF inputs, voice search, and natural chat flow to generate insights.</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-dark text-white py-4 px-6 flex items-center justify-between shadow-md">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <svg class="w-8 h-8 text-primary animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/></svg>
+            <h1 class="text-xl font-bold">NeuraChat <span class="text-primary">- Book Summary Assistant</span></h1>
+        </div>
+    </header>
+
+    <!-- Chat Container -->
+    <main id="chatbox" class="flex-1 overflow-y-auto p-6 text-white space-y-4">
+        <div class="flex justify-start animate-fadeIn">
+            <div class="max-w-[80%] p-4 rounded-2xl bg-secondary shadow-md">
+                Hello! I'm <span class="font-bold text-primary">NeuraChat</span>, your Book Summary Assistant. Which book do you want summarized?
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Box -->
+    <footer class="bg-dark p-4 border-t border-secondary flex gap-2">
+        <input type="text" id="userInput" placeholder="Type your book name..." class="flex-1 p-3 rounded-xl bg-deep border border-secondary text-white placeholder-gray-400 focus:ring-2 focus:ring-primary transition-all">
+        <button id="sendBtn" class="bg-primary text-white px-6 py-3 rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center gap-2">
+            <span>Send</span>
+            <svg class="w-5 h-5 animate-bounce" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+    </footer>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("-translate-x-full");
+        }
+
+        document.getElementById("sendBtn").addEventListener("click", sendMessage);
+        document.getElementById("userInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput").value.trim();
+            if (!userInput) return;
+
+            addMessage(userInput, false);
+
+            const response = await fetch("http://localhost:3000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            });
+
+            const data = await response.json();
+            addMessage(data.reply, true);
+
+            document.getElementById("userInput").value = "";
+        }
+
+        function addMessage(text, isBot) {
+            const chatbox = document.getElementById("chatbox");
+            const messageDiv = document.createElement("div");
+
+            messageDiv.className = `flex ${isBot ? "justify-start" : "justify-end"} animate-slideIn`;
+            messageDiv.innerHTML = `
+                <div class="max-w-[80%] p-4 rounded-2xl ${isBot ? "bg-secondary text-white" : "bg-primary text-white"} shadow-md">
+                    ${text}
+                </div>
+            `;
+
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
